@@ -52,7 +52,7 @@ function reducer(prev: GameState, action: GameAction): GameState {
         time: 15,
         stage: prev.stage + 1,
         answer: getRandomAnswer(prev.stage + 1),
-        score: Math.pow(prev.stage, 3) * prev.time,
+        score: prev.score + Math.pow(prev.stage, 3) * prev.time,
       };
     case 'SELECT_INCORRECT':
       return {
