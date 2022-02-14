@@ -1,18 +1,16 @@
 import { useCallback, useEffect, useReducer, useRef } from 'react';
 
-type GameState = {
-  isPlaying: boolean;
-  stage: number;
-  baseColor: string;
-  answerColor: string;
-  answer: number;
-  time: number;
-  score: number;
-};
-type GameActionType = 'INIT' | 'SELECT_CORRECT' | 'SELECT_INCORRECT' | 'TICK';
-type GameAction = { type: GameActionType };
+//////////////
+// constant //
+//////////////
+const STAGE_TIME = 15;
 
-const getRandomColors = (diff: number) => {
+//////////////
+//  helper  //
+//////////////
+const getRandomColors = (stage: number) => {
+  const diff = 25 - Math.ceil(stage / 3);
+
   const code = () => Math.floor(Math.random() * 230);
   const r = code();
   const g = code();
@@ -31,16 +29,29 @@ const getRandomAnswer = (stage: number) => {
   const width = Math.round((stage + 0.5) / 2) + 1;
   return Math.floor(Math.random() * width * width);
 };
-
 const getInitialState = (): GameState => ({
   isPlaying: true,
   stage: 1,
-  ...getRandomColors(25),
+  ...getRandomColors(1),
   answer: getRandomAnswer(1),
-  time: 15,
+  time: STAGE_TIME,
   score: 0,
 });
 
+//////////////
+// reducer  //
+//////////////
+type GameState = {
+  isPlaying: boolean;
+  stage: number;
+  baseColor: string;
+  answerColor: string;
+  answer: number;
+  time: number;
+  score: number;
+};
+type GameActionType = 'INIT' | 'SELECT_CORRECT' | 'SELECT_INCORRECT' | 'TICK';
+type GameAction = { type: GameActionType };
 function reducer(prev: GameState, action: GameAction): GameState {
   switch (action.type) {
     case 'INIT':
@@ -48,8 +59,8 @@ function reducer(prev: GameState, action: GameAction): GameState {
     case 'SELECT_CORRECT':
       return {
         ...prev,
-        ...getRandomColors(25 - Math.ceil(prev.stage / 3)),
-        time: 15,
+        ...getRandomColors(prev.stage + 1),
+        time: STAGE_TIME,
         stage: prev.stage + 1,
         answer: getRandomAnswer(prev.stage + 1),
         score: prev.score + Math.pow(prev.stage, 3) * prev.time,
@@ -79,6 +90,9 @@ function reducer(prev: GameState, action: GameAction): GameState {
   }
 }
 
+//////////////
+//   hook   //
+//////////////
 export const useGame = () => {
   const [state, dispatch] = useReducer(reducer, getInitialState());
   const timer = useRef<NodeJS.Timer>();
@@ -123,5 +137,5 @@ export const useGame = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(init, []);
 
-  return { state, action: { init, select } };
+  return { state, action: { select } };
 };
