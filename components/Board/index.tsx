@@ -9,8 +9,6 @@ export function Board(props: {
 }) {
   const width = Math.round((props.stage + 0.5) / 2) + 1;
 
-  console.log(props);
-
   return (
     <div className={styles.wrapper}>
       {[...Array(width * width)].map((_, index) => (
